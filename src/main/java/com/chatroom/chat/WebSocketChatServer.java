@@ -1,5 +1,6 @@
 package com.chatroom.chat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
@@ -24,9 +25,12 @@ public class WebSocketChatServer {
     private static final Map<String, Session> onlineSessions = new ConcurrentHashMap<>();
 
     private static void sendMessageToAll(Message message) {
+        message.setOnlineCount(onlineSessions.size());
         onlineSessions.forEach((s, session) -> {
             try {
-                session.getBasicRemote().sendText(message.content);
+                ObjectMapper mapper = new ObjectMapper();
+                String JSON = mapper.writeValueAsString(message);
+                session.getBasicRemote().sendText(JSON);
             } catch (Exception error) {
                 error.printStackTrace();
             }
@@ -51,11 +55,10 @@ public class WebSocketChatServer {
      */
     @OnMessage
     public void onMessage(Session session, String jsonStr) {
-        System.out.println(jsonStr);
         Message message = new Message();
         message.setContent(jsonStr);
         message.setSender(session.getId());
-        message.setType(Message.MessageType.CHAT);
+        message.setType(Message.MessageType.SPEAK);
         sendMessageToAll(message);
     }
 

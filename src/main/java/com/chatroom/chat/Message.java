@@ -1,15 +1,25 @@
 package com.chatroom.chat;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * WebSocket message model
  */
 class Message {
+    @JsonProperty("msg")
     String content;
+
+    @JsonProperty("username")
     String sender;
+
+    @JsonProperty("type")
     MessageType type;
 
+    @JsonProperty("onlineCount")
+    int onlineCount;
+
     public enum MessageType {
-        CHAT, JOIN, LEAVE
+        SPEAK, JOIN, LEAVE
     }
 
     void setContent(String content) {
@@ -22,5 +32,9 @@ class Message {
 
     void setType(MessageType type) {
         this.type = type;
+    }
+
+    void setOnlineCount(int onlineCount) {
+        this.onlineCount = onlineCount;
     }
 }

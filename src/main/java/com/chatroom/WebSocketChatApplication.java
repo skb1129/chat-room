@@ -3,6 +3,7 @@ package com.chatroom;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -26,11 +27,11 @@ public class WebSocketChatApplication {
     }
 
     /**
-     * Chatroom Page
+     * ChatRoom Page
      */
-    @GetMapping("/index")
+    @PostMapping("/index")
     public ModelAndView index(String username, HttpServletRequest request) throws UnknownHostException {
-        //TODO: add code for login to chatroom.
-        return null;
+        request.getSession().setAttribute("username", username);
+        return new ModelAndView("/chat");
     }
 }
