@@ -21,10 +21,16 @@ public class WebSocketChatServer {
     /**
      * All chat sessions.
      */
-    private static Map<String, Session> onlineSessions = new ConcurrentHashMap<>();
+    private static final Map<String, Session> onlineSessions = new ConcurrentHashMap<>();
 
-    private static void sendMessageToAll(String msg) {
-        //TODO: add send message method.
+    private static void sendMessageToAll(Message message) {
+        onlineSessions.forEach((s, session) -> {
+            try {
+                session.getBasicRemote().sendText(message.content);
+            } catch (Exception error) {
+                error.printStackTrace();
+            }
+        });
     }
 
     /**
@@ -32,7 +38,12 @@ public class WebSocketChatServer {
      */
     @OnOpen
     public void onOpen(Session session) {
-        //TODO: add on open connection.
+        onlineSessions.put(session.getId(), session);
+        Message message = new Message();
+        message.setContent(String.format("%s has joined the room", session.getId()));
+        message.setSender(session.getId());
+        message.setType(Message.MessageType.JOIN);
+        sendMessageToAll(message);
     }
 
     /**
@@ -40,7 +51,12 @@ public class WebSocketChatServer {
      */
     @OnMessage
     public void onMessage(Session session, String jsonStr) {
-        //TODO: add send message.
+        System.out.println(jsonStr);
+        Message message = new Message();
+        message.setContent(jsonStr);
+        message.setSender(session.getId());
+        message.setType(Message.MessageType.CHAT);
+        sendMessageToAll(message);
     }
 
     /**
@@ -48,7 +64,12 @@ public class WebSocketChatServer {
      */
     @OnClose
     public void onClose(Session session) {
-        //TODO: add close connection.
+        onlineSessions.remove(session.getId());
+        Message message = new Message();
+        message.setContent(String.format("%s has left the room", session.getId()));
+        message.setSender(session.getId());
+        message.setType(Message.MessageType.LEAVE);
+        sendMessageToAll(message);
     }
 
     /**
