@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * WebSocket Server
  *
  * @see ServerEndpoint WebSocket Client
- * @see Session   WebSocket Session
+ * @see Session WebSocket Session
  */
 
 @Component
@@ -24,6 +24,10 @@ public class WebSocketChatServer {
      */
     private static final Map<String, Session> onlineSessions = new ConcurrentHashMap<>();
 
+    /**
+     * Send message to all users.
+     * @param message: Message object to send
+     */
     private static void sendMessageToAll(Message message) {
         message.setOnlineCount(onlineSessions.size());
         onlineSessions.forEach((s, session) -> {
@@ -38,7 +42,8 @@ public class WebSocketChatServer {
     }
 
     /**
-     * Open connection, 1) add session, 2) add user.
+     * Open connection and add session.
+     * @param session: WebSocket Session object
      */
     @OnOpen
     public void onOpen(Session session) {
@@ -51,19 +56,22 @@ public class WebSocketChatServer {
     }
 
     /**
-     * Send message, 1) get username and session, 2) send message to all.
+     * Create message object and send message to all.
+     * @param session: WebSocket Session object
+     * @param content: Message content sent from client
      */
     @OnMessage
-    public void onMessage(Session session, String jsonStr) {
+    public void onMessage(Session session, String content) {
         Message message = new Message();
-        message.setContent(jsonStr);
+        message.setContent(content);
         message.setSender(session.getId());
         message.setType(Message.MessageType.SPEAK);
         sendMessageToAll(message);
     }
 
     /**
-     * Close connection, 1) remove session, 2) update user.
+     * Close connection and remove session.
+     * @param session: WebSocket Session object
      */
     @OnClose
     public void onClose(Session session) {

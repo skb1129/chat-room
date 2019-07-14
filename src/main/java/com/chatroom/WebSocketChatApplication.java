@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.net.UnknownHostException;
 
 @SpringBootApplication
@@ -28,10 +28,12 @@ public class WebSocketChatApplication {
 
     /**
      * ChatRoom Page
+     * @param username: Username for chat room
+     * @param session: HTTP session object
      */
     @PostMapping("/index")
-    public ModelAndView index(String username, HttpServletRequest request) throws UnknownHostException {
-        request.getSession().setAttribute("username", username);
+    public ModelAndView index(String username, HttpSession session) throws UnknownHostException {
+        session.setAttribute("username", username);
         return new ModelAndView("/chat");
     }
 }
