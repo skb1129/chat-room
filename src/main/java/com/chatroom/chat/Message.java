@@ -22,15 +22,9 @@ class Message {
         SPEAK, JOIN, LEAVE
     }
 
-    void setContent(String content) {
+    Message(String content, String sender, MessageType type) {
         this.content = content;
-    }
-
-    void setSender(String sender) {
         this.sender = sender;
-    }
-
-    void setType(MessageType type) {
         this.type = type;
     }
 

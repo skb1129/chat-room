@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title>Chat Room</title>
     <meta charset="utf-8" name="viewport" content="width=device-width">
@@ -36,7 +36,9 @@
                         <input class="mdui-textfield-input" id="msg"/>
                     </div>
                     <div class="mdui-container" style="padding:20px 35px">
-                        <!-- TODO: add a send button to send message -->
+                        <button class="mdui-btn mdui-color-theme mdui-ripple"
+                                onclick="sendMsgToServer()">Send
+                        </button>
                         <button class="mdui-btn mdui-color-theme mdui-ripple"
                                 onclick="clearMsg()">Clear
                         </button>
@@ -80,7 +82,7 @@
     /**
      * websocket open connection.
      */
-    webSocket.onopen = function (event) {
+    webSocket.onopen = function () {
       console.log('WebSocket open connection');
     };
 
@@ -117,14 +119,14 @@
     /**
      * Close connection
      */
-    webSocket.onclose = function (event) {
+    webSocket.onclose = function () {
       console.log('WebSocket close connection.');
     };
 
     /**
      * Exception
      */
-    webSocket.onerror = function (event) {
+    webSocket.onerror = function () {
       console.log('WebSocket exception.');
     };
     return webSocket;

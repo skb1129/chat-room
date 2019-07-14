@@ -16,13 +16,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 @Component
-@ServerEndpoint("/chat")
+@ServerEndpoint(value = "/chat", configurator = WebSocketConfig.class)
 public class WebSocketChatServer {
 
     /**
      * All chat sessions.
      */
     private static final Map<String, Session> onlineSessions = new ConcurrentHashMap<>();
+
+    /**
+     * All User Names
+     */
+    private static final Map<String, String> userNames = new ConcurrentHashMap<>();
 
     /**
      * Send message to all users.
@@ -42,16 +47,33 @@ public class WebSocketChatServer {
     }
 
     /**
+     * Format user has joined message content
+     * @param sender: Username
+     * @return Formatted message content
+     */
+    private static String getJoinMessage(String sender) {
+        return String.format("\"%s\" has joined the room", sender);
+    }
+
+    /**
+     * Format user has left message content
+     * @param sender: Username
+     * @return Formatted message content
+     */
+    private static String getLeaveMessage(String sender) {
+        return String.format("\"%s\" has left the room", sender);
+    }
+
+    /**
      * Open connection and add session.
      * @param session: WebSocket Session object
      */
     @OnOpen
     public void onOpen(Session session) {
         onlineSessions.put(session.getId(), session);
-        Message message = new Message();
-        message.setContent(String.format("%s has joined the room", session.getId()));
-        message.setSender(session.getId());
-        message.setType(Message.MessageType.JOIN);
+        String username = (String) session.getUserProperties().get("username");
+        userNames.put(session.getId(), username);
+        Message message = new Message(getJoinMessage(username), username, Message.MessageType.JOIN);
         sendMessageToAll(message);
     }
 
@@ -62,10 +84,7 @@ public class WebSocketChatServer {
      */
     @OnMessage
     public void onMessage(Session session, String content) {
-        Message message = new Message();
-        message.setContent(content);
-        message.setSender(session.getId());
-        message.setType(Message.MessageType.SPEAK);
+        Message message = new Message(content, userNames.get(session.getId()), Message.MessageType.SPEAK);
         sendMessageToAll(message);
     }
 
@@ -75,11 +94,12 @@ public class WebSocketChatServer {
      */
     @OnClose
     public void onClose(Session session) {
+        Message message = new Message(
+                getLeaveMessage(userNames.get(session.getId())),
+                userNames.get(session.getId()),
+                Message.MessageType.LEAVE);
         onlineSessions.remove(session.getId());
-        Message message = new Message();
-        message.setContent(String.format("%s has left the room", session.getId()));
-        message.setSender(session.getId());
-        message.setType(Message.MessageType.LEAVE);
+        userNames.remove(session.getId());
         sendMessageToAll(message);
     }
 
